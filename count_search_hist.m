@@ -29,6 +29,7 @@ end
 %fprintf('lowest edge data idx %d\n',idx_lowest)
 idx_u=idx_lowest;
 idx_l=idx_lowest;
+val_u=val_lowest; %for sparse opt
 %the number of counts below the first edge is then 
 bin_count(1)=idx_lowest-1; 
 %check that there are still counts
@@ -53,21 +54,23 @@ if rem_counts~=0
     while idx_u<idx_max
         %fprintf('edge %d\n',ii)
         upper_bin_edge=edges(ii);
-        %fprintf('upper edge value %f\n',upper_bin_edge)
-        %fprintf('upper edge count idx %d\n',idx_u)
-        idx_u=binary_search_first_elm(data,upper_bin_edge,idx_u,idx_max);  
-        val_u=data(idx_u);
-        if val_u<upper_bin_edge 
-                idx_u=idx_u+1;
+        %sparse opt, if the upper edge is smaller than the first count after the last bin
+        if upper_bin_edge>val_u
+            %fprintf('upper edge value %f\n',upper_bin_edge)
+            %fprintf('upper edge count idx %d\n',idx_u)
+            idx_u=binary_search_first_elm(data,upper_bin_edge,idx_u,idx_max);  
+            val_u=data(idx_u);
+            if val_u<upper_bin_edge 
+                    idx_u=idx_u+1;
+            end
+            %idx_u is now the first count not in this bin
+            %fprintf('upper edge count idx %d\n',idx_u)
+            %fprintf('lower edge count idx %d\n',idx_l)
+            if idx_u~=idx_l
+                 bin_count(ii)=idx_u-idx_l;
+            end
+            idx_l=idx_u;
         end
-        %fprintf('upper edge count idx %d\n',idx_u)
-        %fprintf('lower edge count idx %d\n',idx_l)
-        
-        if idx_u~=idx_l
-             bin_count(ii)=idx_u-idx_l;
-        end
-
-        idx_l=idx_u;
         ii=ii+1;
     end
 end
