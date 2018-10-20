@@ -24,17 +24,15 @@ count_search_hist
   - improvements of log(n)/log(2*n/m) , ~2.6 for n=1e6 m=1e4
   - worst case log(n)+1
   - works best for dense histogram
-
+- try basic search reduction in Bin Search
+   - compare count with last value to search only edges above or below that.
+   - NO improvement for counts in the middle log2(n)/(log2(n/2)+1) =~1 
+   - for uniform dist aprox 9% speedup for 1e6 see /dev/opt_for_bin_Search.m
 
 
 ## Contributions
 -Benjamin Bernard: Binary search modified from fileexchange project [binary-search-for-closest-value-in-an-array](https://au.mathworks.com/matlabcentral/fileexchange/37915-binary-search-for-closest-value-in-an-array)
 
 
-## Bad ideas
-Some ideas seem good at first but then turn out to be useless
-- try basic search reduction in Bin Search
-   - compare count with last value to search only edges above or below that.
-   - NO improvement for counts in the middle log2(n)/(log2(n/2)+1) =~1 
-   - because for uniform dist there is an equal chance of a n(1-x) or nx counts then the weighted evaluation time 1/2 ((Log[numc*x] + 1) + (Log[numc*(1 - x)] + 1)) whcih must be integerated over the distrubution
-   - trying to evaluate that expresison is very hard
+
+
