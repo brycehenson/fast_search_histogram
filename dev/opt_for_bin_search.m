@@ -6,6 +6,7 @@
 
 unit_hat=@(x) double(x<1 & x>0);
 dist_un=@(x) unit_hat(x);
+dist_un=@(x) exp(-((x-0.5)./0.25).^2);
 dist_un(0.2)
 sumdist=integral(dist_un,-inf,inf,'RelTol',1e-4)
 dist=@(x) dist_un(x)/sumdist;
@@ -17,10 +18,9 @@ intdown(0.5)
 plot(dist(linspace(0,1,1e3)));
 
 %%
-ncounts=1e5;
-rel_eval_time=@(x) dist(x).*0.5.*(log2(ncounts.*intup(x))+log2(ncounts.*intdown(x)))./log2(ncounts);
-rel_eval_time(0.9999)
-%%
-dx=1e-3
+ncounts=1e3;
+rel_eval_time=@(x) dist(x).*0.5.*((log2(ncounts.*intup(x))+1)+(log2(ncounts.*intdown(x))+1))./log2(ncounts);
+%rel_eval_time(0.9999)
+dx=1e-3;
 integral(rel_eval_time,dx,1-dx,'ArrayValued',0)
 
