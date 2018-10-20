@@ -9,16 +9,22 @@ The brute approach to histograming is to compare each bin to each data value (or
 For maximum utility to a user it we desire to create an adaptive wraper that choses the fastest algorithm based on the input size. It needs to be evaluated what the impact of sparsity is on the relative performance.
 
 
-## Features
-count_search_hist  
-- sparse opt that will not run the search if the higest edge of the current bin is less than the count after the last bin
-  - may slow dense case down by one compare evaluation
 
+
+## Benchmarking
 | ![A comparison runtime for different hist algorithms](/figs/scaling_comparison.png "Fig1") | 
 |:--:| 
- **Figure 1**- Comparison of the search based methods to matlabs inbuilt histogram i7-3610 @ 3.00GHz. The reader should note the inverted Z axis with .Data is random pulled from the uniform unit distributon, bins are uniform across the unit interval. The search algorithms outperform for most combinations of n and m exept for a band ~(m<n & m>1e5) where the worst case is the inbuilt is 5x faster than the search based methods. The more comon use cases are the left side of the plot where m<n. |
+ **Figure 1**- Comparison of the search based methods to matlabs inbuilt histogram i7-3610 @ 3.00GHz. The reader should note the inverted Z axis with. Data is sampled from the uniform unit distributon, bins are uniform across the unit interval. The search based algorithms outperform for most combinations of n and m exept for a band ~(m<n & m>1e5) where the inbuilt isup to 5x faster than the search based methods. The more comon use cases are the left side of the plot where m<n. |
+
+## Features
+count_search_hist  
+- sparse opt: will not run the count search if the higest edge of the current bin is less than next count (after the last bin)
+  - may slow dense case down by one compare evaluation
 
 ## Future work
+- try and use some kind of learner or clasifier to predict the best method to use baed on some model and n,m
+  - want a light to calculate method
+  - Classification Learner 
 - try forward prediction for count search.
   - based on the count in the previous bin estimate a better place to start the binary search.
   - improvements of log(n)/log(2*n/m) , ~2.6 for n=1e6 m=1e4
