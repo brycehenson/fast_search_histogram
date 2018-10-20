@@ -27,7 +27,7 @@ count_search_hist
 - try basic search reduction in Bin Search
    - compare count with last value to search only edges above or below that.
    - NO improvement for counts in the middle log2(n)/(log2(n/2)+1) =~1 
-   - for uniform dist aprox 9% speedup for 1e6 see /dev/opt_for_bin_Search.m
+   - for uniform dist aprox 5% speedup for 1e6 see /dev/opt_for_bin_Search.m
 
 
 ## Contributions
