@@ -24,7 +24,9 @@ count_search_hist
 ## Future work
 - try and use some kind of learner or clasifier to predict the best method to use baed on some model and n,m
   - want a light to calculate method
-  - Classification Learner 
+  - had good sucess with a gaussian kernel SVM: ~87% accuracy, 7ms prediction runtime
+  - predition runtime is still prohibitive for an adaptive wraper
+    - perhaps a hybrid approach where a more simple rule is used for the small n,m then when the margins or the optimal/suboptimal algorithm are larger than the perdiction time the SVM model is used. 
 - try forward prediction for count search.
   - based on the count in the previous bin estimate a better place to start the binary search.
   - improvements of log(n)/log(2*n/m) , ~2.6 for n=1e6 m=1e4
