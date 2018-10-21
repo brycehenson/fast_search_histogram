@@ -1,7 +1,56 @@
 function bin_count=count_search_hist(data,edges)
-%col vector as inputs
-%trying to replicate the behaviour of histcounts(X,edges) "The value X(i)
+%bin_search_hist - a histogram algorithm based on binary search of counts
+% for each edge in the edge vector this code performs a binary search of
+% the ordered data to find the count index of this edge
+% !!!!!!!!!!!!!!! REQUIRES ORDERED DATA !!!!!!!!!!!!!!!!!!!!!!!!
+% gives asymptotic speedup O(m·log(n)) over convertional hitograming O(n·m)
+% Optimizations
+%   - pre search for first(last) edge. Two inital searches for the hist limits eliminates
+%     counts from search if they are not in the hisogram.
+%   - moving search domain. Uses the previous edge as a lower limit to the
+%     search domain.
+%   - Simple sparse optimization. checks if there is any counts in the hist
+%     bin before conducting search  (costs one compare but saves log(n)·unfilled bins)
+%
+% Syntax:         bin_counts=count_search_hist(data,edges)
+% Equivelent to:  bin_counts=histcounts(data,[-inf;edges;inf])
+% Designed to replicate histcounts(X,edges) "The value X(i)
 %is in the kth bin if edges(k) ? X(i) < edges(k+1)" 
+% Inputs:
+%    data            - column vector of data/counts , MUST BE ORDERED!
+%    edges           - column vector of bin edges, MUST BE ORDERED!
+
+%
+% Outputs:
+%    bin_count - column vector, with length numel(edges)+1,  the first(last) element 
+%                are the number of counts below(above) the first(last) edge
+%
+% Example: 
+%     data=rand(1e5,1);
+%     data=sort(data);
+%     edges=linspace(0.1,1.1,1e6)';
+%     out1=bin_search_hist(data,edges);
+%     out2=histcounts(data,[-inf;edges;inf])';
+%     isequal(out1,out2)
+% Other m-files required: none
+% Also See: scaling_tests
+% Subfunctions: none
+% MAT-files required: none
+%
+% Known BUGS/ Possible Improvements
+%  - try forward prediction for count search.
+%    - based on the count in the previous bin estimate a better place to start the binary search.
+%    - improvements of log(n)/log(2*n/m) , ~2.6 for n=1e6 m=1e4
+%    - worst case log(n)+1
+%    - works best for dense histogram
+%
+% Author: Bryce Henson
+% email: Bryce.Henson@live.com
+% Last revision:2018-10-21
+
+%------------- BEGIN CODE --------------
+
+
 
 %[~,order] =sort(X(:,1),1);
 %X=X(order,:);

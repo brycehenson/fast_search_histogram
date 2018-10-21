@@ -1,9 +1,47 @@
 function bin_count=bin_search_hist(data,edges)
-%col vector as inputs
-%trying to replicate the behaviour of histcounts(X,edges) "The value X(i)
+%bin_search_hist - a histogram algorithm based on binary search of bins
+% for each count in the data vector this code performs a binary search of
+% the edges to find the apropriate histogram bin to increment 
+% gives asymptotic speedup O(n·log(m)) over convertional hitograming O(n·m)
+%
+% Syntax:         bin_counts=bin_search_hist(data,edges)
+% Equivelent to:  bin_counts=histcounts(data,[-inf;edges;inf])
+% Designed to replicate histcounts(X,edges) "The value X(i)
 %is in the kth bin if edges(k) ? X(i) < edges(k+1)" 
-% To improve
-%   -some checks on the dimension of inputs would be good
+% Inputs:
+%    data            - column vector of data/counts , no ordering requirement
+%    edges           - column vector of bin edges, MUST BE ORDERED!
+%
+% Outputs:
+%    bin_count - column vector, with length numel(edges)+1,  the first(last) element 
+%                are the number of counts below(above) the first(last) edge
+% Example: 
+%     data=rand(1e5,1);
+%     data=sort(data);
+%     edges=linspace(0.1,1.1,1e6)';
+%     out1=bin_search_hist(data,edges);
+%     out2=histcounts(data,[-inf;edges;inf])';
+%     isequal(out1,out2)
+% Other m-files required: none
+% Also See: scaling_tests
+% Subfunctions: none
+% MAT-files required: none
+%
+% Known BUGS/ Possible Improvements
+%  - try basic search reduction ,
+%    - compare count with last value to search only edges above or below that.
+%    - might give ~5% improvement, got me thinking about pre search lookup
+%    tables 
+%
+% Author: Bryce Henson
+% email: Bryce.Henson@live.com
+% Last revision:2018-10-21
+
+%------------- BEGIN CODE --------------
+
+if ~iscolumn(data) || ~iscolumn(edges)
+    error('inputs must be column vectors')
+end
 
 % number of bins is edges-1 with 2 extra for below lowest and above highest
 num_edges=size(edges,1);

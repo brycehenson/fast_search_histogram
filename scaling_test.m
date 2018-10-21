@@ -111,16 +111,16 @@ plot(num_edges_vec,runtime)
 % bin search seems better in most cases as there is not the sort overhead
 
 %% bin search basic test
+% to give the same output for histcounts we need to add inf to both ends of the edges
 edges=linspace(1,10,10)';
 data=[1.0]';
 fprintf('edges   %s\n',sprintf('%.1f  ',edges))
-out_full=bin_search_hist(data,edges);
-fprintf('out1  %s\n',sprintf('%d    ',out1'))
-out1_cut=out_full(2:end-1)';
-out2=histcounts(data,edges);
+out1=bin_search_hist(data,edges)';
+fprintf('out1       %s\n',sprintf('%d    ',out1))
+out2=histcounts(data,[-inf;edges;inf]);
 fprintf('out2       %s\n',sprintf('%d    ',out2))
 logic_str={'FAIL','pass'};
-fprintf('equality testing : %s\n',logic_str{isequal(out1_cut,out2)+1})
+fprintf('equality testing : %s\n',logic_str{isequal(out1,out2)+1})
 
 
 %% count search basic
@@ -131,13 +131,12 @@ data=[3.9,6,7]';
 iscolumn(data)
 data=sort(data);
 fprintf('edges    %s\n',sprintf('%.1f   ',edges))
-out_full=count_search_hist(data,edges);
-fprintf('out1  %s\n',sprintf('%02d    ',out_full'))
-out1_cut=out_full(2:end-1)';
-out2=histcounts(data,edges);
-fprintf('out2        %s\n',sprintf('%02d    ',out2))
+out1=count_search_hist(data,edges);
+fprintf('out1  %s\n',sprintf('%02d    ',out1'))
+out2=histcounts(data,[-inf;edges;inf])';
+fprintf('out2  %s\n',sprintf('%02d    ',out2))
 logic_str={'FAIL','pass'};
-fprintf('equality testing : %s\n',logic_str{isequal(out1_cut,out2)+1})
+fprintf('equality testing : %s\n',logic_str{isequal(out1,out2)+1})
 
 
 
@@ -147,38 +146,38 @@ data=rand(1e5,1);
 data=sort(data);
 edges=linspace(0.1,1.1,1e6)';
 tic
-out_full=bin_search_hist(data,edges);
+out1=bin_search_hist(data,edges);
 time_bin_search=toc;
 fprintf('time bin search hist = %.2fms\n',time_bin_search*1e3)
-out1_cut=out_full(2:end-1)';
 
 tic
-out_full=count_search_hist(data,edges);
+out2=count_search_hist(data,edges);
 time_count_search=toc;
 fprintf('time count search hist = %.2fms\n',time_count_search*1e3)
-out2_cut=out_full(2:end-1)';
 
 tic
-out3=histcounts(data,edges);
+out3=histcounts(data,[-inf;edges;inf])';
 time_inbuilt=toc;
 fprintf('time  inbuilt        = %.2fms\n',time_inbuilt*1e3)
 fprintf('speedup matlab/bin_search= %.1f \n',time_inbuilt/time_bin_search)
 fprintf('speedup matlab/count_search= %.1f \n',time_inbuilt/time_count_search)
 logic_str={'FAIL','pass'};
-fprintf('equality testing matlab=bin_search   : %s\n',logic_str{isequal(out1_cut,out3)+1})
-fprintf('equality testing matlab=count_search : %s\n',logic_str{isequal(out2_cut,out3)+1})
+fprintf('equality testing matlab=bin_search   : %s\n',logic_str{isequal(out1,out3)+1})
+fprintf('equality testing matlab=count_search : %s\n',logic_str{isequal(out2,out3)+1})
 fprintf('Speedup test   bin_search            : %s \n',logic_str{(time_bin_search<time_inbuilt)+1})
 fprintf('Speedup test   count_search          : %s \n',logic_str{(time_count_search<time_inbuilt)+1})
 
 
 %%
-evaluations=5e3;
+evaluations=1e3;
 update_interval=10; %seconds between plot updates
+nmax=1e6;
+mmax=1e6;
 
 lin_eval=round(sqrt(evaluations));
-evaluations=lin_eval.^2
-num_counts_vec=round(logspace(1,7,lin_eval));
-num_edges_vec=round(logspace(1,7,lin_eval));
+evaluations=lin_eval.^2     
+num_counts_vec=round(logspace(1,round(log10(nmax)),lin_eval));
+num_edges_vec=round(logspace(1,round(log10(mmax)),lin_eval));
 [num_counts_mesh,num_edges_mesh] = meshgrid(num_counts_vec,num_edges_vec);
 num_counts_vec=num_counts_mesh(:);
 num_edges_vec=num_edges_mesh(:);
@@ -216,22 +215,23 @@ for ii=1:iimax
     
     edges=linspace(0,1,num_edges_vec(ii))';
     tic
-    out3=histcounts(data,edges);
+    out3=histcounts(data,[-inf;edges;inf])';
     temp_time=toc;
     runtimes(ii,2)=temp_time;
 
     tic
-    out_full=bin_search_hist(data,edges);
+    out1=bin_search_hist(data,edges);
     temp_time=toc;
     runtimes(ii,3)=temp_time;
-    out1_cut=out_full(2:end-1)';
 
     tic
-    out_full=count_search_hist(data,edges);
+    out2=count_search_hist(data,edges);
     temp_time=toc;
     runtimes(ii,4)=temp_time;
-    out2_cut=out_full(2:end-1)';
-
+    
+    if ~isequal(out3,out2,out1)
+        error('methods not equal')
+    end
     ptime=posixtime(datetime('now'));
     if ptime-last_update>update_interval || ii==iimax
         f= scatteredInterpolant(num_counts_vec(1:ii),...
@@ -270,8 +270,29 @@ end
 figure(1)
 fprintf('\n') 
 
-saveas(gcf,fullfile('dev','matlab_inbuilt_mbins_scaling.png'))
+saveas(gcf,fullfile('figs','scaling_comparison_raw.png'))
 
+%% make classification data
+%give each point (n,m) a value of 1,2,3
+[~,type]=min([runtimes(:,2),runtimes(:,3),runtimes(:,4)],[],2);
+class_data=[log10(num_edges_vec),log10(num_counts_vec),type];
+%%
+t = templateSVM('Standardize',1,'KernelFunction','gaussian');
+%t = templateSVM('Standardize',1,'KernelFunction','polynomial','PolynomialOrder',2);
+%t=templateDiscriminant('DiscrimType','quadratic');
+classifier=fitcecoc(class_data(:,1:2),class_data(:,3),'Learners',t,'FitPosterior',1);
+[pred score cost] = predict(classifier, class_data(:,1:2));
+accuracy = sum(class_data(:,3) == pred)/size(pred,1);
+predict(classifier,[3,3]);
+predict(classifier,[3,3]);
+tic; 
+predict(classifier,[3,3]); 
+model_runtime=toc;
+fprintf('classifier accuracy %.3f, runtime %.1f ms\n',accuracy,model_runtime*1e3)
+
+
+%%
+tic; trainedModel.predictFcn([5,5]); toc
 
 %%
 Smoothness = 0.0004;
@@ -311,15 +332,17 @@ time_bsearch_interp = RegularizeData3D(...
                         'interp', 'bicubic', 'smoothness', Smoothness);
 time_bsearch_interp=10.^(time_bsearch_interp);                    
 sfigure(3);
+set(gcf,'color','w')
+set(gcf, 'Units', 'pixels', 'Position', [100, 100, 1600, 900])
 hold on
 surf(num_counts_query,num_edges_query,time_inbuilt_interp,'FaceAlpha',0.5,'FaceColor','r')
 surf(num_counts_query,num_edges_query,time_ocsearch_interp,'FaceAlpha',0.5,'FaceColor','g')
 surf(num_counts_query,num_edges_query,time_ucsearch_interp,'FaceAlpha',0.5,'FaceColor','b')
 surf(num_counts_query,num_edges_query,time_bsearch_interp,'FaceAlpha',0.5,'FaceColor','m')
-scatter3(num_counts_vec,num_edges_vec,runtimes(:,2), 'xr');
-scatter3(num_counts_vec,num_edges_vec,runtimes(:,3), 'xg');
-scatter3(num_counts_vec,num_edges_vec,runtimes(:,3)+runtimes(:,1), 'xb');
-scatter3(num_counts_vec,num_edges_vec,runtimes(:,4)+runtimes(:,1), 'xm');
+%scatter3(num_counts_vec,num_edges_vec,runtimes(:,2), 'xr');
+%scatter3(num_counts_vec,num_edges_vec,runtimes(:,3), 'xg');
+%scatter3(num_counts_vec,num_edges_vec,runtimes(:,3)+runtimes(:,1), 'xb');
+%scatter3(num_counts_vec,num_edges_vec,runtimes(:,4)+runtimes(:,1), 'xm');
 hold off
 legend('inbuilt','ordered count search','unordered count search','bin search')
 set(gca,'XScale','log','YScale','log','ZScale','log')
@@ -328,9 +351,8 @@ xlabel('num data n')
 ylabel('num bins m')
 zlabel('runtime (s)')
 pause(1e-6)
-last_update=ptime;
 
-
+saveas(gcf,fullfile('figs','scaling_comparison_smooth.png'))
 
 %% speedup plots
 sfigure(4);
@@ -338,20 +360,17 @@ set(gcf,'color','w')
 set(gcf, 'Units', 'pixels', 'Position', [100, 100, 1500, 500])
 subplot(1,4,1)
 was_one_of_mine_faster=min(cat(3,time_ocsearch_interp,time_bsearch_interp),[],3)<time_inbuilt_interp;
-imagesc(num_counts_vec,num_edges_vec,was_one_of_mine_faster)
+imagesc(num_counts_query_vec,num_edges_query_vec-1,was_one_of_mine_faster)
 title('any search method  better?')
 colormap('gray')
 set(gca,'YDir','normal')
-ylabel('num edges m')
+ylabel('num bins m')
 xlabel('num counts n')
 
 subplot(1,4,2);
-model=@(n) real(sqrt((4e6).^2 -(n.^2)));
 %was count search faster
 was_ucsearch_faster=time_ucsearch_interp<time_inbuilt_interp;
-imagesc(num_counts_vec,num_edges_vec,was_ucsearch_faster)
-hold on
-plot(num_counts_vec,model(num_counts_vec),'rx')
+imagesc(num_counts_query_vec,num_edges_query_vec,was_ucsearch_faster)
 title('sort+ordered count search better?')
 colormap('gray')
 set(gca,'YDir','normal')
@@ -360,7 +379,7 @@ xlabel('num counts n')
 subplot(1,4,3);
 %was count search faster
 was_ocsearch_faster=time_ocsearch_interp<time_inbuilt_interp;
-imagesc(num_counts_vec,num_edges_vec,was_ocsearch_faster)
+imagesc(num_counts_query_vec,num_edges_query_vec,was_ocsearch_faster)
 title('ordered count search better?')
 colormap('gray')
 set(gca,'YDir','normal')
@@ -368,7 +387,7 @@ xlabel('num counts n')
 
 subplot(1,4,4);
 was_bsearch_faster=time_bsearch_interp<time_inbuilt_interp;
-imagesc(num_counts_vec,num_edges_vec,was_bsearch_faster)
+imagesc(num_counts_query_vec,num_edges_query_vec,was_bsearch_faster)
 title('bin search better?')
 colormap('gray')
 set(gca,'YDir','normal')
@@ -411,6 +430,6 @@ pause(1e-6)
 last_update=ptime;
 
 
-
+%interpunct · · alt+0183
 
 
