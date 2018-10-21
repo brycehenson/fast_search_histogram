@@ -40,6 +40,7 @@ count_search_hist
 
 ## Contributions
 -Benjamin Bernard: Binary search modified from fileexchange project [binary-search-for-closest-value-in-an-array](https://au.mathworks.com/matlabcentral/fileexchange/37915-binary-search-for-closest-value-in-an-array)
+- **Daniel Eaton**    [sfigure](https://au.mathworks.com/matlabcentral/fileexchange/8919-smart-silent-figure)
 
 
 
