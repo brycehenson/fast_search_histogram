@@ -169,10 +169,11 @@ fprintf('Speedup test   count_search          : %s \n',logic_str{(time_count_sea
 
 
 %%
-evaluations=1e3;
+evaluations=1e5;
 update_interval=10; %seconds between plot updates
 nmax=1e6;
 mmax=1e6;
+min_max_edge=[0,1];
 
 lin_eval=round(sqrt(evaluations));
 evaluations=lin_eval.^2     
@@ -195,7 +196,7 @@ num_edges_vec=num_edges_vec(rand_order);
 
 iimax=numel(num_counts_mesh);
 %sort,inbuilt,bin_search,counts_search
-runtimes=nan(iimax,4);
+runtimes=nan(iimax,5);
 
 last_update=posixtime(datetime('now')); %time for updating plots every few seconds
 
@@ -204,16 +205,17 @@ clf
 set(gcf,'color','w')
 set(gcf, 'Units', 'pixels', 'Position', [100, 100, 1600, 900])
 
-fprintf('  \n%04u:%04u',iimax,0) 
+fprintf('  \n%05u:%05u',iimax,0) 
 for ii=1:iimax
-    fprintf('\b\b\b\b%04u',ii)
+    fprintf('\b\b\b\b\b%04u',ii)
     data=rand(num_counts_vec(ii),1);
     tic
     data=sort(data);
     temp_time=toc;
     runtimes(ii,1)=temp_time;
     
-    edges=linspace(0,1,num_edges_vec(ii))';
+    
+    edges=linspace(min_max_edge(1),min_max_edge(2),num_edges_vec(ii))';
     tic
     out3=histcounts(data,[-inf;edges;inf])';
     temp_time=toc;
@@ -229,7 +231,13 @@ for ii=1:iimax
     temp_time=toc;
     runtimes(ii,4)=temp_time;
     
-    if ~isequal(out3,out2,out1)
+    
+    tic
+    out4=histcounts(data,num_edges_vec(ii)-1,'BinLimits',min_max_edge)';
+    temp_time=toc;
+    runtimes(ii,5)=temp_time;
+    
+    if ~isequal(out3(2:end-1),out2(2:end-1),out1(2:end-1),out4)
         error('methods not equal')
     end
     ptime=posixtime(datetime('now'));
@@ -249,14 +257,20 @@ for ii=1:iimax
             num_edges_vec(1:ii),runtimes(1:ii,3));
         time_bsearch_interp=f(num_counts_query,num_edges_query);
         
+        f = scatteredInterpolant(num_counts_vec(1:ii),...
+            num_edges_vec(1:ii),runtimes(1:ii,5));
+        time_uhist_interp=f(num_counts_query,num_edges_query);
+        
         sfigure(1);
         surf(num_counts_query,num_edges_query,time_inbuilt_interp,'FaceAlpha',0.5,'FaceColor','r')
         hold on
+        surf(num_counts_query,num_edges_query,time_uhist_interp,'FaceAlpha',0.5,'FaceColor','c')
         surf(num_counts_query,num_edges_query,time_ocsearch_interp,'FaceAlpha',0.5,'FaceColor','g')
         surf(num_counts_query,num_edges_query,time_ucsearch_interp,'FaceAlpha',0.5,'FaceColor','b')
         surf(num_counts_query,num_edges_query,time_bsearch_interp,'FaceAlpha',0.5,'FaceColor','m')
+        
         hold off
-        legend('inbuilt','ordered count search','unordered count search','bin search')
+        legend('histcounts linspace','histcounts uniform','ordered count search','unordered count search','bin search')
         set(gca,'XScale','log','YScale','log','ZScale','log')
         set(gca, 'Zdir', 'reverse')
         xlabel('num data n')

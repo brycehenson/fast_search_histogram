@@ -1,4 +1,4 @@
-function bin_count=even_spaced_hist(data,start_edge,end_edge,num_edges)
+function [bin_count,edges]=even_spaced_hist(data,start_edge,end_edge,num_edges)
 %even_spaced_hist - a histogram algorithm based simple arithmatic to determine if each count is in
 %a given bin
 % !!!!!!!!!!!!!!! REQUIRES ORDERED DATA !!!!!!!!!!!!!!!!!!!!!!!!
@@ -40,9 +40,9 @@ function bin_count=even_spaced_hist(data,start_edge,end_edge,num_edges)
 
 
 
-if ~iscolumn(data)
-    error('inputs must be column vectors')
-end
+%if ~iscolumn(data)
+%    error('inputs must be column vectors')
+%end
 
 % number of bins is edges-1 with 2 extra for below lowest and above highest
 num_bins_whole=num_edges-1;
@@ -52,10 +52,10 @@ bin_width=(end_edge-start_edge)/(num_bins_whole); %minus 2 for the -inf and +inf
 bin_count=zeros(num_bins_domain,1);
 num_data=size(data,1);
 
+
 for ii=1:num_data
-    data_val=data(ii);
-    frac_bins=(data_val-start_edge)/bin_width
-    closest_idx=fix(frac_bins)
+    frac_bins=(data(ii)-start_edge)/bin_width;
+    closest_idx=floor(frac_bins);
     if closest_idx<0
         closest_idx=1;
     elseif closest_idx>num_bins_whole
@@ -65,6 +65,8 @@ for ii=1:num_data
     end
     bin_count(closest_idx)=bin_count(closest_idx)+1; 
 end
+
+edges=[-inf,start_edge+bin_width*(0.0:num_bins_whole),inf];
 
 end
 
