@@ -18,6 +18,9 @@ For maximum utility to a user it would be great to create an adaptive wraper tha
 count_search_hist  
 - sparse opt: will not run the count search if the higest edge of the current bin is less than next count (after the last bin)
   - may slow dense case down by one compare evaluation
+  
+## Also See
+[https://github.com/brycehenson/fast_sorted_mask](https://github.com/brycehenson/fast_sorted_mask) where I apply similar principles to dramaticaly speed up masking operations (in certian cases). 	
 
 ## Future work
 - try and use some kind of learner or clasifier to predict the best method to use baed on some model and n,m
