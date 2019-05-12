@@ -3,11 +3,10 @@
 fast 1d histograming algorithms based on binary search
 
 The brute approach to histograming is to compare each bin to each data value (or *count*) and gives a complexity **O(n·m)** where *n* is the number of data values and *m* is the number of bins. This can be improved by two algorithms.
-1. **Bin Search, O(n·log(m))**: For each count do a binary search for the histogram bin that it should go into and then increment that bin. Because the bins are already ordered then there is no sorting needed. Best when m>>n (aka sparse histograming).
-2. **Count Search, O(m·log(n))**:  For each bin edge do a binary search to find the nearest data index. Use the difference in this data index between bins to give the number of counts.  Must have ordered data for the search to work, sorting first would cost **O(n·log(n))** and would make this method always slower. Best when n>>m which is the most common use use case of regular histograming.
+1. **Bin Search, O(n·log(m))**: For each count do a binary search for the histogram bin that it should go into and then increment that bin. Because the bins are already ordered then there is no sorting needed. Best when m>>n (sparse histograming).
+2. **Count Search, O(m·log(n))**:  For each bin edge do a binary search to find the nearest data index. Use the difference in this data index between bins to give the number of counts.  Must have ordered data for the search to work, sorting first would cost **O(n·log(n))** and would make this method always slower. Best when n>>m (dense histograming) which is the more common use use case.
 
-I obsereve empyricaly (see fig. 1) that there is a fiairly complex dependence of which algo is best on the value of n and m.
-For maximum utility to a user it would be great to create an adaptive wraper that choses the fastest algorithm based on the input size. It needs to be evaluated what the impact of sparsity is on the relative performance.
+I obsereve empirically (see fig. 1) that there is a fiairly complex dependence of which algorithm is best on the value of n and m.
 
 ## Benchmarking
 | ![A comparison runtime for different hist algorithms](/figs/scaling_comparison.png "Fig1") | 
@@ -18,9 +17,15 @@ For maximum utility to a user it would be great to create an adaptive wraper tha
 count_search_hist  
 - sparse opt: will not run the count search if the higest edge of the current bin is less than next count (after the last bin)
   - may slow dense case down by one compare evaluation
+  
+## Also See
+[https://github.com/brycehenson/fast_sorted_mask](https://github.com/brycehenson/fast_sorted_mask) where I apply similar principles to dramaticaly speed up masking operations (in certian cases). 	
 
 ## Future work
+- Investiage what the effect of non uniform underlying density has on the relative performance
+- usage examples
 - try and use some kind of learner or clasifier to predict the best method to use baed on some model and n,m
+  - adaptive wrapper
   - want a light to calculate method
   - had good sucess with a gaussian kernel SVM: ~87% accuracy, 7ms prediction runtime
   - predition runtime is still prohibitive for an adaptive wraper
@@ -38,8 +43,8 @@ count_search_hist
   - can be generalized to a pre search look up table
     - see [Interpolation search](https://en.wikipedia.org/wiki/Interpolation_search)
 	- tradeoff between look up table depth/overhead and increased performance 
-    - randomization may improve performance
-	
+    - randomization may improve performance	
+- add to fileexchange
 
 ## Contributions
 - **Benjamin Bernard** Binary search modified from fileexchange project [binary-search-for-closest-value-in-an-array](https://au.mathworks.com/matlabcentral/fileexchange/37915-binary-search-for-closest-value-in-an-array)
