@@ -2,7 +2,8 @@ function bin_count=hist_bin_search(data,edges)
 %bin_search_hist - a histogram algorithm based on binary search of bins
 % for each count in the data vector this code performs a binary search of
 % the edges to find the apropriate histogram bin to increment 
-% gives asymptotic speedup O(n·log(m)) over convertional hitograming O(n·m)
+% gives asymptotic speedup O(n·log(m)) over convertional hitograming O(n·m) for sparse histograms
+% (many more bins than counts)
 %
 % Syntax:         bin_counts=bin_search_hist(data,edges)
 % Equivelent to:  bin_counts=histcounts(data,[-inf;edges;inf])

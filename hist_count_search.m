@@ -3,7 +3,8 @@ function bin_count=hist_count_search(data,edges)
 % for each edge in the edge vector this code performs a binary search of
 % the ordered data to find the count index of this edge
 % !!!!!!!!!!!!!!! REQUIRES ORDERED DATA !!!!!!!!!!!!!!!!!!!!!!!!
-% gives asymptotic speedup O(m·log(n)) over convertional hitograming O(n·m)
+% gives asymptotic speedup O(m·log(n)) over convertional histograming O(n·m) for dense histograms
+% (many more counts than bins)
 % Optimizations
 %   - pre search for first(last) edge. Two inital searches for the hist limits eliminates
 %     counts from search if they are not in the hisogram.

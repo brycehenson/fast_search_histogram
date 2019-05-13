@@ -24,30 +24,29 @@ The simplest use case is just to call the adaptive hist method which uses heuris
 out_adaptive=adaptive_hist_method(data,edges);
 isequal(out1,out2)
 ```
-If your use case is pretty restricted in the domain of n(number of data values),m(number of bins) then you can use hist_compare_methods to find out the speeds of each method and then just use the fastest one. Note the syntat is a little different to allow for the uniform bin case
+If your use case is pretty restricted in the domain of n(number of data values),m(number of bins) then you can use hist_compare_methods to find out the speeds of each method and then just use the fastest one. 
 ```
 [best_meth_str,details]=out_adaptive=adaptive_hist_method(data,edges);
-hist_compare_methods
-num_mask=sum(mask)
+best_meth_str
+details.core_times
 ```
-or the subset of data points (vector)
+The underlying count_search and bin_search functions can be called by themseleves if you know the number of bins and counts. For the case when m(number of bins) is much greater than n(number of data values) use hist_bin_search.
 ```
-subset_mask=data(mask)
+bin_counts=hist_bin_search(data,edges)
 ```
-The equivelent (but faster) operation using fast_sorted_mask on ordered data is:
+The first(and last) bin_count is the number of counts below(above) the first(last) edge.
+For **sorted counts** where n(number of data values) is much greater than m(number of bins) use hist_count_search.
 ```
-mask_idx=fast_sorted_mask(data,lower_lim,upper_lim);
-num_mask=mask_idx(2)-mask_idx(1)+1;
-subset_mask=data(mask_idx(1):mask_idx(2)); 
+bin_counts=hist_count_search(data,edges)
 ```
-**WARNING: the data vector MUST be sorted. See figures above for when it is still advantagous to sort unordered data and then use this approach.**
+
 
 
 
 ## Benchmarking
 | ![A comparison runtime for different hist algorithms](/figs/scaling_comparison.png "Fig1") | 
 |:--:| 
- **Figure 1**- Comparison of the search based methods to matlabs inbuilt histogram i7-3610 @ 3.00GHz. The reader should note the inverted Z axis with. Data is sampled from the uniform unit distributon, bins are uniform across the unit interval. The search based algorithms outperform for most combinations of n and m exept for a band ~(m<n & m>1e5) where the inbuilt isup to 5x faster than the search based methods. The more comon use cases are the left side of the plot where m<n. |
+ **Figure 1**- Comparison of the search based methods to matlabs inbuilt histogram i7-3610 @ 3.00GHz. The reader should note the inverted Z axis with. Data is sampled from the uniform unit distributon, bins are uniform across the unit interval. The search based algorithms outperform for most combinations of n and m exept for a band ~(m<n & m>1e5) where the inbuilt isup to 5x faster than the search based methods. The more comon use cases are the left side of the plot where m<n. The adaptive method uses heuristics to choose heuristics the best method.|
 
 ## Features
 count_search_hist  
@@ -58,11 +57,11 @@ count_search_hist
 [https://github.com/brycehenson/fast_sorted_mask](https://github.com/brycehenson/fast_sorted_mask) where I apply similar principles to dramaticaly speed up masking operations (in certian cases). 	
 
 ## Future work
+-[x] logo
+-[x] clean main branch
 - Investiage what the effect of non uniform underlying density has on the relative performance
-- usage examples
-- try and use some kind of learner or clasifier to predict the best method to use baed on some model and n,m
-  - adaptive wrapper
-  - want a light to calculate method
+- improve hist_adaptive_method
+  - try and use some kind of learner or clasifier to predict the best method to use baed on some model and n,m
   - had good sucess with a gaussian kernel SVM: ~87% accuracy, 7ms prediction runtime
   - predition runtime is still prohibitive for an adaptive wraper
     - perhaps a hybrid approach where a more simple rule is used for the small n,m then when the margins or the optimal/suboptimal algorithm are larger than the perdiction time the SVM model is used. 
