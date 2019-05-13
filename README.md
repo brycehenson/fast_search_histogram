@@ -45,7 +45,7 @@ bin_counts=hist_count_search(data,edges)
 ## Benchmarking
 | ![A comparison runtime for different hist algorithms](/figs/scaling_comparison.png "Fig1") | 
 |:--:| 
- **Figure 1**- Comparison of the search based methods to matlabs inbuilt histogram i7-3610 @ 3.00GHz. The reader should note the inverted Z axis with. Data is sampled from the uniform unit distributon, bins are uniform across the unit interval. The search based algorithms outperform for most combinations of n and m exept for a band ~(m<n & m>1e5) where the inbuilt isup to 5x faster than the search based methods. The more comon use cases are the left side of the plot where m<n. The adaptive method uses heuristics to choose heuristics the best method.|
+ **Figure 1**- Comparison of the search based methods to matlabs inbuilt histogram i7-3610 @ 3.00GHz. The reader should note the inverted Z axis with. Data is sampled from the uniform unit distributon, bins are uniform across the unit interval. The search based algorithms outperform for most combinations of n and m exept for a band ~(m<n & m>1e5) where the inbuilt isup to 5x faster than the search based methods. The more comon use cases are the left side of the plot where m<n. The adaptive method uses heuristics to choose  the best method.|
 
 ## Features
 count_search_hist  
