@@ -65,7 +65,7 @@ for ii=1:iimax
     fprintf('\b\b\b\b%04u',ii)
     data=rand(num_counts_vec(ii),1);
     
-    [~,meth_det]=compare_method_speeds(data,[0,1],num_edges_vec(ii));
+    [~,meth_det]=hist_compare_methods(data,[0,1],num_edges_vec(ii));
     
     runtimes(ii,1)=meth_det.aux_times.sort;
     runtimes(ii,2)=meth_det.core_times.histcounts_edges;

@@ -1,4 +1,4 @@
-function [best_method_str,details,best_method_num]=compare_method_speeds(x_dat,bin_lims,bins)
+function [best_method_str,details,best_method_num]=hist_compare_methods(x_dat,edges_in)
 % calculate the runtime of various histogram methods
 % also check that they return the same answers
 % TODO
@@ -17,12 +17,30 @@ if ~issorted(x_dat)
 end
 
 
-bin_lims=sort(bin_lims);
+if ~issorted(edges_in)
+    error('edges are not sorted') ;
+end
 
-%generate the edges vector
-timer_handle=tic;
-edges=linspace(bin_lims(1),bin_lims(2),bins+1)';
-aux_times.gen_edges=toc(timer_handle);
+edges_diff=diff(edges_in);
+is_unform_bins=numel(uniquetol(edges_diff,eps*5))==1;
+
+bin_lims=edges_in([1,end]);
+bin_lims=sort(bin_lims);
+bins=numel(edges_in)-1;
+
+if is_unform_bins
+    fprintf('uniform edges detected\n')
+    %generate the edges vector
+    timer_handle=tic;
+    edges=linspace(bin_lims(1),bin_lims(2),bins+1)';
+    aux_times.gen_edges=toc(timer_handle);
+    if ~isequal(edges_in,edges)
+        error('generated edge vecor not the same as input')
+    end
+else
+    edges=edges_in;
+    aux_times.gen_edges=0;
+end
 
 %call histcounts with edges
 timer_handle=tic;
@@ -56,7 +74,7 @@ if ~isequal(out.histcounts_edges,out.hist_count_search)
 end
 
 timer_handle=tic;
-out.adaptive=adaptive_hist_method(x_dat,edges,1);
+out.adaptive=hist_adaptive_method(x_dat,edges,1);
 meth_times.adaptive=toc(timer_handle);
 
 if ~isequal(out.histcounts_edges,out.adaptive)

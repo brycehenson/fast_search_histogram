@@ -1,4 +1,4 @@
-function bin_count=adaptive_hist_method(x_dat,edges,is_x_sorted)
+function bin_count=hist_adaptive_method(x_dat,edges,is_x_sorted)
 %adaptive_hist_method - a function that tries to chose the fastest histogram method
 % uses a very simple case strucute. Future implmentations may use something like a SVM if it can be made fast
 % enough. see scaling_tests to make a plot of the relative method speed and adjust the thresholds for your own

@@ -10,6 +10,40 @@ The brute approach to histograming is to compare each bin to each data value (or
 
 I obsereve empirically (see fig. 1) that there is a fiairly complex dependence of which algorithm is best on the value of n and m.
 
+
+## Usage
+The normal way of taking a histogram in matlab is using histcounts. The functions developed here also return a lower and upper bin which contains the counts that were below(above) the first(last) edge so to be fair we add in ±inf to the edges.
+```
+data=rand(1e5,1);
+edges=linspace(0.1,1.1,1e6)';
+data=sort(data);
+out_inbuilt=histcounts(data,[-inf;edges;inf])';
+```
+The simplest use case is just to call the adaptive hist method which uses heuristics to come up with a decent guess of wich method is best.
+```
+out_adaptive=adaptive_hist_method(data,edges);
+isequal(out1,out2)
+```
+If your use case is pretty restricted in the domain of n(number of data values),m(number of bins) then you can use hist_compare_methods to find out the speeds of each method and then just use the fastest one. Note the syntat is a little different to allow for the uniform bin case
+```
+[best_meth_str,details]=out_adaptive=adaptive_hist_method(data,edges);
+hist_compare_methods
+num_mask=sum(mask)
+```
+or the subset of data points (vector)
+```
+subset_mask=data(mask)
+```
+The equivelent (but faster) operation using fast_sorted_mask on ordered data is:
+```
+mask_idx=fast_sorted_mask(data,lower_lim,upper_lim);
+num_mask=mask_idx(2)-mask_idx(1)+1;
+subset_mask=data(mask_idx(1):mask_idx(2)); 
+```
+**WARNING: the data vector MUST be sorted. See figures above for when it is still advantagous to sort unordered data and then use this approach.**
+
+
+
 ## Benchmarking
 | ![A comparison runtime for different hist algorithms](/figs/scaling_comparison.png "Fig1") | 
 |:--:| 

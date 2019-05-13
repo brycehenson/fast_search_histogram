@@ -75,6 +75,15 @@ if val_lowest<edge_lowest
     idx_lowest=idx_lowest+1;
 end
 %idx_lowest is now the first count in the first bin
+
+% handle the case where the first edge is above the highest count
+if idx_lowest==num_counts
+    idx_lowest=idx_lowest+1;
+end
+
+
+
+
 %fprintf('lowest edge data idx %d\n',idx_lowest)
 idx_u=idx_lowest;
 idx_l=idx_lowest;
@@ -84,10 +93,15 @@ bin_count(1)=idx_lowest-1;
 %check that there are still counts
 rem_counts=num_counts-bin_count(1);
 
+%do a binary search for the count index of the last edge to speed up the main loop (set search lims)
 if rem_counts~=0
     edge_highest=edges(end);
     idx_max=binary_search_first_elm(data,edge_highest,idx_lowest,num_counts);
-    idx_max=idx_max+1;
+    
+    %handle the case where the highest edge is below the first count
+    if idx_max~=1
+        idx_max=idx_max+1;
+    end
     val_highest=data(idx_max);
     if val_highest<edge_highest
         idx_max=idx_max+1;
