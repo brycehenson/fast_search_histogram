@@ -59,6 +59,7 @@ count_search_hist
 ## Future work
 -[x] logo
 -[x] clean main branch
+-[x] clean up hist_scaling_test
 - Investiage what the effect of non uniform underlying density has on the relative performance
 - improve hist_adaptive_method
   - try and use some kind of learner or clasifier to predict the best method to use baed on some model and n,m
