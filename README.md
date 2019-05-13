@@ -3,6 +3,7 @@
 Fast 1d histograming algorithms based on binary search.   
 **Status:** This Code **is ready for use in other projects**. Testing is implemented and passing.  
 
+This project demonstrates superior speed to Matlab's inbuilt histcounts function and provides an adaptive function (hist_adaptive_method) that automatically picks the fastest method.
 
 The brute approach to histograming is to compare each bin to each data value (or *count*) and gives a complexity **O(n·m)** where *n* is the number of data values and *m* is the number of bins. This can be improved by two algorithms.
 1. **Bin Search, O(n·log(m))**: For each count do a binary search for the histogram bin that it should go into and then increment that bin. Because the bins are already ordered then there is no sorting needed. Best when m>>n (sparse histograming).
