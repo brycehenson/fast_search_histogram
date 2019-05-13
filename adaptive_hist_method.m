@@ -47,7 +47,7 @@ if is_x_sorted
     if edges_size<2e3
         bin_count=hist_count_search(x_dat,edges);
     else
-        if dat_size>1e3
+        if dat_size>1e3 && log10(dat_size)>log10(edges_size)-1
             %call histcounts with edges
             bin_count=histcounts(x_dat,[-inf;edges;inf])';
         else
@@ -55,7 +55,7 @@ if is_x_sorted
         end
     end
 else
-    if dat_size>1e3
+    if dat_size>1e3 && log10(dat_size)>log10(edges_size)-1
         %call histcounts with edges
         bin_count=histcounts(x_dat,[-inf;edges;inf])';
     else

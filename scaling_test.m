@@ -58,7 +58,7 @@ clf
 set(gcf,'color','w')
 set(gcf, 'Units', 'pixels', 'Position', [100, 100, 1600, 900])
 
-surface_colors= prism(5);
+surface_colors= prism(6);
 
 fprintf('  \n%04u:%04u',iimax,0) 
 for ii=1:iimax
@@ -72,10 +72,12 @@ for ii=1:iimax
     runtimes(ii,3)=meth_det.core_times.histcounts_nbins;
     runtimes(ii,4)=meth_det.core_times.hist_bin_search;
     runtimes(ii,5)=meth_det.core_times.hist_count_search-meth_det.aux_times.sort;
+    runtimes(ii,6)=meth_det.core_times.adaptive;
     
 
     ptime=posixtime(datetime('now'));
     if ptime-last_update>update_interval && ii>30 || ii==iimax
+        %TODO: clean this up, so much repeated code
         %matlab inbuilt histcounts(edges)
         f_interp= scatteredInterpolant(num_counts_vec(1:ii),...
             num_edges_vec(1:ii),runtimes(1:ii,2));
@@ -96,6 +98,10 @@ for ii=1:iimax
         f_interp = scatteredInterpolant(num_counts_vec(1:ii),...
             num_edges_vec(1:ii),runtimes(1:ii,4));
         time_bsearch_interp=f_interp(num_counts_query,num_edges_query);
+        %adaptive method
+         f_interp = scatteredInterpolant(num_counts_vec(1:ii),...
+            num_edges_vec(1:ii),runtimes(1:ii,6));
+        time_adaptive_interp=f_interp(num_counts_query,num_edges_query);
         
         surface_alpha=0.8;
         sfigure(1);
@@ -105,8 +111,9 @@ for ii=1:iimax
         surf(num_counts_query,num_edges_query,time_ocsearch_interp,'FaceAlpha',surface_alpha,'FaceColor', surface_colors(3,:))
         surf(num_counts_query,num_edges_query,time_ucsearch_interp,'FaceAlpha',surface_alpha,'FaceColor', surface_colors(4,:))
         surf(num_counts_query,num_edges_query,time_bsearch_interp,'FaceAlpha',surface_alpha,'FaceColor', surface_colors(5,:))
+        surf(num_counts_query,num_edges_query,time_adaptive_interp,'FaceAlpha',surface_alpha,'FaceColor', surface_colors(6,:))
         hold off
-        legend('inbuilt(edges)','inbuilt(nbins)','ordered count search','unordered count search','bin search')
+        legend('inbuilt(edges)','inbuilt(nbins)','ordered count search','unordered count search','bin search','adaptive')
         set(gca,'XScale','log','YScale','log','ZScale','log')
         set(gca, 'Zdir', 'reverse')
         xlabel('num data n')

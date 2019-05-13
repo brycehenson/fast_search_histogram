@@ -1,6 +1,9 @@
 function [best_method_str,details,best_method_num]=compare_method_speeds(x_dat,bin_lims,bins)
 % calculate the runtime of various histogram methods
 % also check that they return the same answers
+% TODO
+% -docs
+% -issorted flag
 
 meth_times=[];
 aux_times=[];
@@ -52,14 +55,24 @@ if ~isequal(out.histcounts_edges,out.hist_count_search)
     error('histcounts_edges and hist_count_search did not return the same output')
 end
 
+timer_handle=tic;
+out.adaptive=adaptive_hist_method(x_dat,edges,1);
+meth_times.adaptive=toc(timer_handle);
+
+if ~isequal(out.histcounts_edges,out.adaptive)
+    error('histcounts_edges and adaptive did not return the same output')
+end
+
+
+
 % to be perfectly fair the methods that used the edge vector must have the edge vector generation time added
 meth_times.histcounts_edges=aux_times.gen_edges+meth_times.histcounts_edges;
 meth_times.hist_bin_search=aux_times.gen_edges+meth_times.hist_bin_search;
 meth_times.hist_count_search=aux_times.gen_edges+meth_times.hist_count_search;
+meth_times.adaptive=aux_times.gen_edges+meth_times.adaptive; %TODO: deal better with the adaptive is_sorted case
 
 
 meth_times.hist_count_search=meth_times.hist_count_search+aux_times.sort;
-
 
 feild_names=fields(meth_times);
 [~,min_idx]=min(cell2mat(struct2cell(meth_times)));

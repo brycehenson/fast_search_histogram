@@ -53,9 +53,12 @@ fprintf('equality testing : %s\n',logic_str{isequal(out1,out2)+1})
 data=rand(1e6,1);
 [best_method_str,meth_det]=compare_method_speeds(data,[0.5,1.1],1e2);
 
-%%
+
 
 %% randomized equality testing
+
+yn_logic_str={'no','yes'}; %for non critical cases
+
 iimax=100;
 for ii=1:iimax
 data=rand(ceil(1+rand(1)*1e6),1);
@@ -96,8 +99,8 @@ fprintf('equality testing matlab=adaptive_meth: %s\n',logic_str{is_count_search_
 if ~is_bin_search_right || ~is_count_search_right
     return
 end
-fprintf('Speedup test   bin_search            : %s \n',logic_str{(time_bin_search<time_inbuilt)+1})
-fprintf('Speedup test   count_search          : %s \n',logic_str{(time_count_search<time_inbuilt)+1})
-fprintf('Speedup test   adpative_meth         : %s \n',logic_str{(time_adaptive<time_inbuilt)+1})
+fprintf('Speedup test   bin_search            : %s \n',yn_logic_str{(time_bin_search<time_inbuilt)+1})
+fprintf('Speedup test   count_search          : %s \n',yn_logic_str{(time_count_search<time_inbuilt)+1})
+fprintf('Speedup test   adpative_meth         : %s \n',yn_logic_str{(time_adaptive<time_inbuilt)+1})
 end
 
