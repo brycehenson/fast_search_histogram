@@ -1,6 +1,6 @@
 # <img src="figs/logo.png" alt="diagram of the count search method" width="400"/> 
 **Bryce M. Henson**  
-Fast 1d histograming algorithms based on binary search. 
+Fast 1d histograming algorithms based on binary search.   
 **Status:** This Code **is ready for use in other projects**. Testing is implemented and passing.  
 
 
