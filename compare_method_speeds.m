@@ -1,4 +1,4 @@
-function [best_method_str,details]=compare_method_speeds(x_dat,bin_lims,bins)
+function [best_method_str,details,best_method_num]=compare_method_speeds(x_dat,bin_lims,bins)
 % calculate the runtime of various histogram methods
 % also check that they return the same answers
 
@@ -64,7 +64,7 @@ meth_times.hist_count_search=meth_times.hist_count_search+aux_times.sort;
 feild_names=fields(meth_times);
 [~,min_idx]=min(cell2mat(struct2cell(meth_times)));
 best_method_str=feild_names{min_idx};
-
+best_method_num=min_idx;
 
 details=[];
 details.core_times=meth_times;
