@@ -8,7 +8,7 @@ The brute approach to histograming is to compare each bin to each data value (or
 1. **Bin Search, O(n·log(m))**: For each count do a binary search for the histogram bin that it should go into and then increment that bin. Because the bins are already ordered then there is no sorting needed. Best when m>>n (sparse histograming).
 2. **Count Search, O(m·log(n))**:  For each bin edge do a binary search to find the nearest data index. Use the difference in this data index between bins to give the number of counts.  Must have ordered data for the search to work, sorting first would cost **O(n·log(n))** and would make this method always slower. Best when n>>m (dense histograming) which is the more common use use case. (this is the mehod shown in the logo)
 
-I obsereve empirically (see fig. 1) that there is a fiairly complex dependence of which algorithm is best on the value of n and m.
+I obsereve empirically (see fig. 1 & hist_scaling_test) that there is a fiairly complex dependence of which algorithm is best on the value of n and m. I have implemented a function hist_adaptive_method that does a good job of picking the fastest method.
 
 
 ## Usage
@@ -41,8 +41,6 @@ bin_counts=hist_count_search(data,edges)
 ```
 
 
-
-
 ## Benchmarking
 | ![A comparison runtime for different hist algorithms](/figs/scaling_comparison.png "Fig1") | 
 |:--:| 
@@ -57,15 +55,17 @@ count_search_hist
 [https://github.com/brycehenson/fast_sorted_mask](https://github.com/brycehenson/fast_sorted_mask) where I apply similar principles to dramaticaly speed up masking operations (in certian cases). 	
 
 ## Future work
--[x] logo
--[x] clean main branch
--[x] clean up hist_scaling_test
-- Investiage what the effect of non uniform underlying density has on the relative performance
+contributors welcome! Drop me an [email](mailto:bryce.m.henson+github.fast_search_histogram@gmail.com?subject=I%20would%20Like%20to%20Contribute[github][fast_search_histogram]) .
+
+- [x] logo
+- [x] clean main branch
+- [x] clean up hist_scaling_test
+- Investigate what the effect of non uniform underlying density has on the relative performance
 - improve hist_adaptive_method
   - try and use some kind of learner or clasifier to predict the best method to use baed on some model and n,m
   - had good sucess with a gaussian kernel SVM: ~87% accuracy, 7ms prediction runtime
   - predition runtime is still prohibitive for an adaptive wraper
-    - perhaps a hybrid approach where a more simple rule is used for the small n,m then when the margins or the optimal/suboptimal algorithm are larger than the perdiction time the SVM model is used. 
+  - perhaps a hybrid approach where a more simple rule is used for the small n,m then when the margins or the optimal/suboptimal algorithm are larger than the perdiction time the SVM model is used. 
 - try forward prediction for count search.
   - based on the count in the previous bin estimate a better place to start the binary search.
   - improvements of log(n)/log(2*n/m) , ~2.6 for n=1e6 m=1e4
