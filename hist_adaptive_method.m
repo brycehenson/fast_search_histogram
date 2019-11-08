@@ -1,4 +1,4 @@
-function bin_count=hist_adaptive_method(x_dat,edges,is_x_sorted)
+function bin_count=hist_adaptive_method(x_dat,edges,is_x_sorted,out_of_bounds)
 %adaptive_hist_method - a function that tries to chose the fastest histogram method
 % uses a very simple case strucute. Future implmentations may use something like a SVM if it can be made fast
 % enough. see scaling_tests to make a plot of the relative method speed and adjust the thresholds for your own
@@ -10,11 +10,13 @@ function bin_count=hist_adaptive_method(x_dat,edges,is_x_sorted)
 %    x_dat           - column vector of data/counts, 
 %    edges           - column vector of bin edges, MUST BE ORDERED!
 %    is_x_sorted     - is the x_dat sorted, if you use issorted(x_dat) you will lose a lot of the potential
-%    speedup
+%                      speedup that these algos can give
+%    out_of_bounds   - inclue the out of bounds bins [-inf,edge1...,edge(end),inf]
 
 % Outputs:
-%    bin_count - column vector, with length numel(edges)+1,  the first(last) element 
+%    bin_count - column vector, if out_of_bounds=true will have length numel(edges)+1,  the first(last) element 
 %                are the number of counts below(above) the first(last) edge
+%                if out_of_bounds=false then will have ength numel(edges)-1
 %
 % Example: 
 %     data=rand(1e5,1);
@@ -42,6 +44,12 @@ function bin_count=hist_adaptive_method(x_dat,edges,is_x_sorted)
 
 dat_size=numel(x_dat);
 edges_size=numel(edges);
+if nargin<3
+    is_x_sorted=0;
+end
+if nargin<4
+    out_of_bounds=0;
+end
 
 if is_x_sorted
     if edges_size<2e3
@@ -63,6 +71,10 @@ else
     end
 end
 
+% remove the edge bins
+if ~out_of_bounds
+    bin_count=bin_count(2:end-1);
+end
 
 
 end

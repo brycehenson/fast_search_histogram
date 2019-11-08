@@ -40,7 +40,8 @@ function bin_count=hist_bin_search(data,edges)
 
 %------------- BEGIN CODE --------------
 
-if ~iscolumn(data) || ~iscolumn(edges)
+%check if data is the right format
+if ~iscolumn(data) || ~iscolumn(edges) 
     error('inputs must be column vectors')
 end
 
@@ -66,6 +67,8 @@ for ii=1:num_data
         
     bin_count(closest_idx)=bin_count(closest_idx)+1; 
 end
+
+
 
 end
 

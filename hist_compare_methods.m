@@ -29,7 +29,7 @@ bin_lims=sort(bin_lims);
 bins=numel(edges_in)-1;
 
 if is_unform_bins
-    fprintf('uniform edges detected\n')
+    %fprintf('uniform edges detected\n')
     %generate the edges vector
     timer_handle=tic;
     edges=linspace(bin_lims(1),bin_lims(2),bins+1)';
@@ -74,7 +74,7 @@ if ~isequal(out.histcounts_edges,out.hist_count_search)
 end
 
 timer_handle=tic;
-out.adaptive=hist_adaptive_method(x_dat,edges,1);
+out.adaptive=hist_adaptive_method(x_dat,edges,1,1);
 meth_times.adaptive=toc(timer_handle);
 
 if ~isequal(out.histcounts_edges,out.adaptive)
