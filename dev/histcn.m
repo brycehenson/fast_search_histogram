@@ -106,13 +106,11 @@ for d=1:nd
     end
     edges{d} = ed;
     % Call histc on this dimension
-    [dummy loc(:,d)] = histc(Xd, ed, 1);
+    [~, loc(:,d)] = histc(Xd, ed, 1);
     % Use sz(d) = length(ed); to create consistent number of bins
     sz(d) = length(ed)-1;
 end % for-loop
 
-% Clean
-clear dummy
 
 % This is need for seldome points that hit the right border
 sz = max([sz; max(loc,[],1)]);
