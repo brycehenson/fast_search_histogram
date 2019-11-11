@@ -1,0 +1,15 @@
+MEX {
+	global:
+		mexFunction;
+		mexfilerequiredapiversion;
+		emlrtMexFcnProperties;
+		index_bin_search;
+		emxEnsureCapacity_real_T;
+		emxFree_real_T;
+		emxInit_real_T;
+		index_bin_search_initialize;
+		index_bin_search_terminate;
+		index_bin_search_atexit;
+	local:
+		*;
+};

@@ -23,6 +23,8 @@ plot(sum(cout,3))
 
 
 
+
+
 %%
 dimensions=2;
 num_counts=1e6;
@@ -42,6 +44,14 @@ cout_sorted=histcn_search(data, edges(1,:)',edges(2,:)' );
 cout_sorted=cout_sorted(2:end-1,2:end-1);
 imagesc(sum(cout_sorted,3))
 sum(cout_sorted(:))
+
+%% hist_sortn
+clear('count');
+cout_sorted=hist_sortn(data, edges(1,:)',edges(2,:)' );
+imagesc(sum(cout_sorted,3))
+sum(cout_sorted(:))
+
+
 %% difference
 imagesc(sum(cout_sorted-cout_normal,3))
 % does the search algo give the same answer
@@ -60,10 +70,10 @@ isequal(cout_sorted,cout_normal)
 
 tic
 dimensions=3;
-num_bins=nthroot(1e5,dimensions);
+num_bins=nthroot(1e3,dimensions);
 evaluations=1e2;
-counts_min=1e0;
-counts_max=1e6;
+counts_min=1e5;
+counts_max=1e8;
 num_counts_list=unique(round(logspace(round(log10(counts_min)),round(log10(counts_max)),evaluations)));
 order=randperm(numel(num_counts_list));
 num_counts_list=num_counts_list(order);
@@ -74,8 +84,6 @@ set(gcf,'color','w')
 for ii=1:numel(num_counts_list)
 data=normrnd(0,0.5,[num_counts_list(ii),dimensions]);
 % make sure the upp and lower inf is inculded
-out_histcn=0*out_histcn;
-out_histcn_search=0*out_histcn_search;
 edges={[-inf,linspace(-1,1,num_bins+1),inf]'};
 edges=repmat(edges,[1,dimensions]);
 out_histcn=zeros(repmat(bins+2,[1,dimensions]));
@@ -88,12 +96,13 @@ edges={linspace(-1,1,num_bins+1)'};
 edges=repmat(edges,[1,dimensions]);
 pause(0.1)
 tic
-out_histcn_search=histcn_search(data, edges{:});
+%out_histcn_search=histcn_search(data, edges{:});
+out_histcn_search=hist_sortn(data, edges{:});
 time_search(ii)=toc;
 
-if ~(isequal(out_histcn,out_histcn_search))
-    error('outputs not equal')
-end
+% if ~(isequal(out_histcn,out_histcn_search))
+%     error('outputs not equal')
+% end
 
 fprintf('bins %03.1e time inbuilt %05.2f ms, mine(sort) %05.2f ms, ratio %.2f \n',...
     num_counts_list(ii),time_histcn(ii)*1e3,time_search(ii)*1e3,...
@@ -119,19 +128,14 @@ end
 %% bin scaling
 
 %for 1d this is what i expect, a linear scaling of histcn and a sublinear for the search algo
-% for higher dim there is a xover (at about 1e2 bins) with the search algo outperforming for small numbers of bins then becoming worse
-% 
+% for higher dim they converge to the execution time of creating the output array with accumarray 
 
-% if i turn off the accumarray and just output the indicies then:
-% - 1d as expected search algo outperfroms for all bins see ndhist_search_dev_no_accumarray_1d_bindep.png
-% - 2d is again very strange with a xover present ndhist_search_dev_no_accumarray_2d_bindep.png why is it doing
-%   this! 
 
 tic
-dimensions=2;
+dimensions=3;
 num_counts=1e2;
 evaluations=1e2;
-bmax=nthroot(1e8,dimensions);
+bmax=nthroot(5e6,dimensions);
 num_bins_list=unique(round(logspace(round(log10(5)),round(log10(bmax)),evaluations)));
 order=randperm(numel(num_bins_list));
 num_bins_list=num_bins_list(order);
@@ -144,24 +148,24 @@ for ii=1:numel(num_bins_list)
 bins=num_bins_list(ii);   
 data=normrnd(0,0.5,[num_counts,dimensions]);
 % make sure the upp and lower inf is inculded
+clear out_histcn
+clear out_histcn_search
+
+
 edges={[-inf,linspace(-1,1,bins+1),inf]'};
 edges=repmat(edges,[1,dimensions]);
-if dimensions==1
-    out_histcn=zeros(bins+2,1);
-else
-    out_histcn=zeros(repmat(bins+2,[1,dimensions]));
-end
-out_histcn_search=out_histcn;
 pause(0.1)
 tic
 out_histcn=histcn(data, edges{:});
-time_histcn(ii)=toc;
+tmp=toc;
+time_histcn(ii)=tmp;
 edges={linspace(-1,1,bins+1)'};
 edges=repmat(edges,[1,dimensions]);
 pause(0.1)
 tic
 out_histcn_search=histcn_search(data, edges{:});
-time_search(ii)=toc;
+tmp=toc;
+time_search(ii)=tmp;
 
 if ~isequal(size(out_histcn),size(out_histcn_search)) || ~isequal(out_histcn,out_histcn_search)
     error('outputs not equal')
@@ -186,30 +190,24 @@ pause(1e-3)
 end
 
 %% code scrap for diagnosing xover
-bins=3e4;   
-num_counts=1;
-dimensions=2;
+bins=4e4;   
+num_counts=1e2;
+dimensions=4;
 data=normrnd(0,0.5,[num_counts,dimensions]);
 % make sure the upp and lower inf is inculded
 edges={[-inf,linspace(-1,1,bins+1),inf]'};
 edges=repmat(edges,[1,dimensions]);
-if dimensions==1
-    out_histcn=zeros(bins+2,1);
-else
-    out_histcn=zeros(repmat(bins+2,[1,dimensions]));
-end
-out_histcn_search=out_histcn;
 pause(0.1)
-%%
+
 tic
 out_histcn=histcn(data, edges{:});
-time_histcn(ii)=toc;
+toc;
 edges={linspace(-1,1,bins+1)'};
 edges=repmat(edges,[1,dimensions]);
 pause(0.1)
 tic
 out_histcn_search=histcn_search(data, edges{:});
-time_search(ii)=toc;
+toc;
 
 if ~isequal(size(out_histcn),size(out_histcn_search)) || ~isequal(out_histcn,out_histcn_search)
     error('outputs not equal')

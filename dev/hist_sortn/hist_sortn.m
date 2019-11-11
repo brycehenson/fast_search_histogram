@@ -1,6 +1,31 @@
 function [count] = hist_sortn(X, varargin)
 % - X: is (M x N) array, represents M data points in R^N
 %   - edgek: are the bin vectors on dimension k, k=1...N.
+
+%recursively defined n dimensional histogram algo
+% rough pseudocode
+% sort input by first dim
+% for edge in edges:
+%       use fast sorted mask to select the counts that fit in a given bin
+%       if input is one dim
+%           accumulate output array
+%       else
+%           select data in bin then call hist_sortn
+% pseudocode
+% 
+% STATUS 2019-11-11
+% - no speedup demonstrated 
+% - does not give the same result as histcn because of an edge issue
+% TODO
+% - work out complexity to see if even in principle speedup
+% - comment code
+% - subfunction histogram data selector & use adaptive algo for sparse/dense case
+%   - as go down in dimensionality will likely traverse from dense to sparse histogram
+% - try to implmenet adaptive histogramer for last dimension (1d) step
+% Outlook
+% - dont expect massive wins but will be a learning experience
+% - may be limited by data shuffling
+
 cell_edges = varargin;
 nd=size(X,2);
 [~,order] =sort(X(:,1),1);

@@ -1,0 +1,48 @@
+# CompilerName=mingw64
+# Mode=optim
+ninja_required_version = 1.3
+
+# Basic folders
+root = .
+builddir = $root\build\win64
+matlabdir = C:\Program Files\MATLAB\R2019a
+startdir = C:\Users\Bryce\Dropbox\UNI\projects\programs\Core_BEC_Analysis\dev
+
+# Toolchain information
+cc = C:\ProgramData\MATLAB\SupportPackages\R2019a\3P.instrset\mingw_w64.instrset\bin\gcc
+cxx = C:\ProgramData\MATLAB\SupportPackages\R2019a\3P.instrset\mingw_w64.instrset\bin\g++
+linker = C:\ProgramData\MATLAB\SupportPackages\R2019a\3P.instrset\mingw_w64.instrset\bin\gcc
+linkerxx = C:\ProgramData\MATLAB\SupportPackages\R2019a\3P.instrset\mingw_w64.instrset\bin\g++
+
+cflags =  -c -fexceptions -fno-omit-frame-pointer -m64 -DMATLAB_MEX_FILE  -DMATLAB_MEX_FILE -O2 -fwrapv -DNDEBUG -std=c99 -I "$root" -I "$startdir" -I "$root\interface" -I "$matlabdir\extern\include" -I "." -D__USE_MINGW_ANSI_STDIO=1  
+
+cxxflags =  -c -fexceptions -fno-omit-frame-pointer -std=c++11 -m64 -DMATLAB_MEX_FILE  -DMATLAB_MEX_FILE -O2 -fwrapv -DNDEBUG -std=c++11 -I "$root" -I "$startdir" -I "$root\interface" -I "$matlabdir\extern\include" -I "." -D__USE_MINGW_ANSI_STDIO=1  
+
+ldflags =  -m64 -Wl,--no-undefined -shared -static -L"$matlabdir\extern\lib\win64\mingw64" -llibmx -llibmex -llibmat -lm -llibmwlapack -llibmwblas -o "index_bin_search_mex.mexw64" -llibemlrt -llibcovrt -llibut -llibmwmathutil  -Wl,--version-script,index_bin_search_mex.map
+
+# Build Rules
+rule cc
+    command = $cc $cflags $in -o $out
+
+rule cxx
+    command = $cxx $cxxflags $in -o $out
+
+rule link
+    command = $linker $in $ldflags
+
+rule linkxx
+    command = $linkerxx $in $ldflags
+
+# Build
+build $builddir\index_bin_search_data.o : cc $root\index_bin_search_data.c
+build $builddir\index_bin_search_initialize.o : cc $root\index_bin_search_initialize.c
+build $builddir\index_bin_search_terminate.o : cc $root\index_bin_search_terminate.c
+build $builddir\index_bin_search.o : cc $root\index_bin_search.c
+build $builddir\_coder_index_bin_search_info.o : cc $root\interface\_coder_index_bin_search_info.c
+build $builddir\_coder_index_bin_search_api.o : cc $root\interface\_coder_index_bin_search_api.c
+build $builddir\_coder_index_bin_search_mex.o : cc $root\interface\_coder_index_bin_search_mex.c
+build $builddir\index_bin_search_emxutil.o : cc $root\index_bin_search_emxutil.c
+build $builddir\c_mexapi_version.o : cc $matlabdir\extern\version\c_mexapi_version.c
+
+# Link
+build $root\index_bin_search_mex.mexw64 : link $builddir\index_bin_search_data.o $builddir\index_bin_search_initialize.o $builddir\index_bin_search_terminate.o $builddir\index_bin_search.o $builddir\_coder_index_bin_search_info.o $builddir\_coder_index_bin_search_api.o $builddir\_coder_index_bin_search_mex.o $builddir\index_bin_search_emxutil.o $builddir\c_mexapi_version.o 
