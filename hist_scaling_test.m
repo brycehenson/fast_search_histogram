@@ -24,7 +24,7 @@ addpath(genpath(this_folder));
 
 %%
 evaluations=1e3;
-update_interval=10; %seconds between plot updates
+update_interval=5; %seconds between plot updates
 nmax=3e6;
 mmax=3e6;
 
@@ -35,17 +35,12 @@ num_edges_vec=unique(round(logspace(1,round(log10(mmax)),lin_eval)));
 [num_counts_mesh,num_edges_mesh] = meshgrid(num_counts_vec,num_edges_vec);
 num_counts_vec=num_counts_mesh(:);
 num_edges_vec=num_edges_mesh(:);
-
-%where to query
-num_counts_query_vec=logspace(log10(min(num_counts_vec)),log10(max(num_counts_vec)),100);
-num_edges_query_vec=logspace(log10(min(num_counts_vec)),log10(max(num_counts_vec)),100);
-[num_counts_query,num_edges_query] = meshgrid(...
-    num_counts_query_vec,...
-    num_edges_query_vec);
-
 rand_order=randperm(numel(num_edges_vec));
 num_counts_vec=num_counts_vec(rand_order);
 num_edges_vec=num_edges_vec(rand_order);
+
+num_counts_query=num_counts_mesh;
+num_edges_query=num_edges_mesh;
 
 iimax=numel(num_counts_mesh);
 %sort,inbuilt,bin_search,counts_search
@@ -53,7 +48,7 @@ runtimes=nan(iimax,4);
 
 last_update=posixtime(datetime('now')); %time for updating plots every few seconds
 
-sfigure(1);
+sfigure(2);
 clf
 set(gcf,'color','w')
 set(gcf, 'Units', 'pixels', 'Position', [100, 100, 1600, 900])
@@ -65,7 +60,7 @@ for ii=1:iimax
     fprintf('\b\b\b\b%04u',ii)
     data=rand(num_counts_vec(ii),1);
     
-    [~,meth_det]=hist_compare_methods(data,[0,1],num_edges_vec(ii));
+    [~,meth_det]=hist_compare_methods(data,col_vec(linspace(0,1,num_edges_vec(ii))));
     
     runtimes(ii,1)=meth_det.aux_times.sort;
     runtimes(ii,2)=meth_det.core_times.histcounts_edges;
