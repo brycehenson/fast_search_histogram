@@ -39,7 +39,7 @@ edges=linspace(1,10,10)';
 %data=[linspace(2.2,2.8,5),linspace(1.1,1.2,3)]';
 data=[3.9,6,7]';
 data=sort(data);
-out1=hist_adaptive_method(data,edges,1);
+out1=hist_adaptive_method(data,edges,1,1);
 out2=histcounts(data,[-inf;edges;inf])';
 % fprintf('edges    %s\n',sprintf('%.1f   ',edges))
 % fprintf('out1  %s\n',sprintf('%02d    ',out1'))
@@ -51,7 +51,7 @@ fprintf('equality testing : %s\n',logic_str{isequal(out1,out2)+1})
 
 data=rand(1e6,1);
 edges=linspace(1,10,10)';
-[best_method_str,meth_det]=hist_compare_methods(data,edges);
+[best_method_str,meth_det]=hist_compare_methods(data,edges)
 
 %% use the benchmarking function to test some edge cases
 

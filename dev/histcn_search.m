@@ -1,4 +1,4 @@
-function [count edges] = histcn_search(X, varargin)
+function [count,edges] = histcn_search(X, varargin)
 % function [count edges mid loc] = histcn(X, edge1, edge2, ..., edgeN)
 %
 % Purpose: compute n-dimensional histogram using a bin search algorithm for faster sparse histograms
@@ -27,7 +27,7 @@ function [count edges] = histcn_search(X, varargin)
 
 
 
-if ndims(X)>2
+if ~ismatrix(X)
     error('histcn: X requires to be an (M x N) array of M points in R^N');
 end
 
@@ -73,8 +73,7 @@ end
 
 
 count = accumarray(loc, 1, out_size);
-%count=1;
-%end
+%count=loc;
 
 
 end

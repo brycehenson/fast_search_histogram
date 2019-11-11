@@ -1,9 +1,11 @@
+
+
+%% single dimension histogram
 %%
 dimensions=1;
 num_counts=1e5;
 bins=1e2;
 
-%%
 %nthroot(counts,dimensions)
 data=normrnd(0,0.5,[num_counts,dimensions]);
 edges=linspace(-1,1,bins);
@@ -12,7 +14,7 @@ cout=histcn(data, edges(1,:)');
 sum(cout(:))
 plot(sum(cout,3))
 
-%%
+%% with the search algo
 clf
 cout=hist_sortn(data, edges(1,:)');
 sum(cout(:))
@@ -34,194 +36,185 @@ size(edges)
 cout_normal=histcn(data, edges(1,:)',edges(2,:)');
 imagesc(sum(cout_normal,3))
 sum(cout_normal(:))
-%%
+%% try with the search algo
 clear('count');
 cout_sorted=histcn_search(data, edges(1,:)',edges(2,:)' );
+cout_sorted=cout_sorted(2:end-1,2:end-1);
 imagesc(sum(cout_sorted,3))
 sum(cout_sorted(:))
-
-%%
-cout_sorted=cout_sorted(2:end-1,2:end-1);
+%% difference
 imagesc(sum(cout_sorted-cout_normal,3))
+% does the search algo give the same answer
 isequal(cout_sorted,cout_normal)
 
 
 
+
+
 %%
+%count scaling
+
+% as expected for 1d my algo outperforms when counts<<bins and then has the same scaling as histcn at higher
+% bin numbers with some constant factor offset
+% similar performance at higher dimensions
+
 tic
 dimensions=3;
-num_counts=1e5;
-bins=1e2;
-num_list=round(linspace(1e2,1e6,1e2));
-time_histcn=num_list*nan;
-for n=1:numel(num_list)
-num_counts=num_list(n);   
-%nthroot(counts,dimensions)
-data=normrnd(0,0.5,[num_counts,dimensions]);
-edges=linspace(-1,1,bins);
-edges=repmat(edges,[dimensions,1]);
-tic
-cout=histcn(data, edges(1,:)',edges(2,:)',edges(3,:)' );
-time_histcn(n)=toc;
-fprintf('n= %03u time %f.2\n',num_list(n),time_histcn(n))
-end
-%imagesc(sum(cout,3))
-%%
-plot(num_list,time_histcn)
-xlabel('counts to histogram (n)')
-ylabel('evaluation time (s)')
-
-
-%%
-tic
-dimensions=1;
-num_counts=1e4;
-bins=1e2;
-num_list=round(linspace(1e2,1e5,1e2));
-time_search=num_list*nan;
-
-
-time_histcn=num_list*nan;
-for n=1:numel(num_list)
-num_counts=num_list(n);   
-%nthroot(counts,dimensions)
-data=normrnd(0,0.5,[num_counts,dimensions]);
-edges=linspace(-1,1,bins);
-edges=repmat(edges,[dimensions,1]);
-tic
-cout=histcn(data, edges(1,:)',edges(2,:)',edges(3,:)' );
-time_histcn(n)=toc;
-fprintf('n= %03u time %f.2\n',num_list(n),time_histcn(n))
-end
-
-
-for n=1:numel(num_list)
-num_counts=num_list(n);   
-%nthroot(counts,dimensions)
-data=normrnd(0,0.5,[num_counts,dimensions]);
-edges=linspace(-1,1,bins);
-edges=repmat(edges,[dimensions,1]);
-tic
-cout=histcn_search(data, 0,edges(1,:)',edges(2,:)',edges(3,:)' );
-
-time_search(n)=toc;
-fprintf('n= %03u time %f.2\n',num_list(n),time_search(n))
-end
-%imagesc(sum(cout,3))
-
-
-
-%%
-%n scaling
-tic
-dimensions=1;
-num_counts=1e2;
-bins=1e5;
-num_list=round(linspace(1e1,1e5,1e2));
-time_search=num_list*nan;
-time_histcn=num_list*nan;
-time_histcn=num_list*nan;
-sfigure(1)
-clf
-set(gcf,'color','w')
-for n=1:numel(num_list)
-num_counts=num_list(n);   
-%nthroot(counts,dimensions)
-data=normrnd(0,0.5,[num_counts,dimensions]);
-edges=linspace(-1,1,bins);
-edges=repmat(edges,[dimensions,1]);
-
-tic
-cout=histcn(data, edges(1,:)');
-time_histcn(n)=toc;
-fprintf('n= %03u time %f.2\n',num_list(n),time_histcn(n))
-sfigure(1);
-plot(num_list,time_search)
-hold on
-plot(num_list,time_histcn)
-hold off
-xlabel('counts to histogram (n)')
-ylabel('evaluation time (s)')
-legend('my sort based histogram','histcn')
-title(sprintf('bins=$10^{%.1f}$',log10(bins)))
-pause(1e-3)
-drawnow;
-end
-
-
-for n=1:numel(num_list)
-num_counts=num_list(n);   
-%nthroot(counts,dimensions)
-data=normrnd(0,0.5,[num_counts,dimensions]);
-edges=linspace(-1,1,bins);
-edges=repmat(edges,[dimensions,1]);
-tic
-cout=histcn_search(data,edges(1,:)');
-
-time_search(n)=toc;
-fprintf('n= %03u time %f.2\n',num_list(n),time_search(n))
-plot(num_list,time_search)
-hold on
-plot(num_list,time_histcn)
-hold off
-xlabel('counts to histogram (n)')
-ylabel('evaluation time (s)')
-legend('my sort based histogram','histcn')
-title(sprintf('bins=$10^{%.1f}$',log10(bins)))
-pause(1e-3)
-end
-%%
-plot(num_list,time_search)
-hold on
-plot(num_list,time_histcn)
-hold off
-xlabel('counts to histogram (n)')
-ylabel('evaluation time (s)')
-legend('my sort based histogram','histcn')
-
-
-
-%% b scaling
-tic
-dimensions=3;
-num_counts=1e3;
+num_bins=nthroot(1e5,dimensions);
 evaluations=1e2;
-bmax=nthroot(1e9,dimensions);
-bins_list=unique(round(logspace(round(log10(100)),round(log10(bmax)),evaluations)));
-order=randperm(numel(bins_list));
-bins_list=bins_list(order);
-time_search=bins_list*nan;
-time_histcn=bins_list*nan;
+counts_min=1e0;
+counts_max=1e6;
+num_counts_list=unique(round(logspace(round(log10(counts_min)),round(log10(counts_max)),evaluations)));
+order=randperm(numel(num_counts_list));
+num_counts_list=num_counts_list(order);
+time_search=num_counts_list*nan;
+time_histcn=num_counts_list*nan;
 sfigure(1)
 set(gcf,'color','w')
-for n=1:numel(bins_list)
-bins=bins_list(n);   
-%nthroot(counts,dimensions)
-data=normrnd(0,0.5,[num_counts,dimensions]);
-edges={linspace(-1,1,bins)'};
+for ii=1:numel(num_counts_list)
+data=normrnd(0,0.5,[num_counts_list(ii),dimensions]);
+% make sure the upp and lower inf is inculded
+out_histcn=0*out_histcn;
+out_histcn_search=0*out_histcn_search;
+edges={[-inf,linspace(-1,1,num_bins+1),inf]'};
 edges=repmat(edges,[1,dimensions]);
+out_histcn=zeros(repmat(bins+2,[1,dimensions]));
+out_histcn_search=out_histcn;
+pause(0.1)
 tic
-histcn(data, edges{:});
-time_histcn(n)=toc;
+out_histcn=histcn(data, edges{:});
+time_histcn(ii)=toc;
+edges={linspace(-1,1,num_bins+1)'};
+edges=repmat(edges,[1,dimensions]);
+pause(0.1)
 tic
-histcn_search(data, edges{:});
-time_search(n)=toc;
-fprintf('bins %03.1e time inbuilt %05.2f, mine(sort) %05.2f, ratio %.2f \n',...
-    bins_list(n),time_histcn(n),time_search(n),...
-    time_histcn(n)/time_search(n))
+out_histcn_search=histcn_search(data, edges{:});
+time_search(ii)=toc;
+
+if ~(isequal(out_histcn,out_histcn_search))
+    error('outputs not equal')
+end
+
+fprintf('bins %03.1e time inbuilt %05.2f ms, mine(sort) %05.2f ms, ratio %.2f \n',...
+    num_counts_list(ii),time_histcn(ii)*1e3,time_search(ii)*1e3,...
+    time_histcn(ii)/time_search(ii))
+
 
 sfigure(1);
-plot(bins_list,time_search,'xr')
+plot(num_counts_list,time_search,'xr')
 hold on
-plot(bins_list,time_histcn,'xb')
+plot(num_counts_list,time_histcn,'xb')
 hold off
-xlabel('bins to histogram (n)')
+xlabel('counts to histogram (n)')
 ylabel('evaluation time (s)')
 legend('my sort based histogram','histcn')
-title(sprintf('bins=$10^{%.1f}$',log10(bins)))
+title(sprintf('bins=$10^{%.1f}$',log10(num_bins)))
 set(gca,'XScale','log','YScale','log')
 pause(1e-3)
 end
+
+
+
+
+%% bin scaling
+
+%for 1d this is what i expect, a linear scaling of histcn and a sublinear for the search algo
+% for higher dim there is a xover (at about 1e2 bins) with the search algo outperforming for small numbers of bins then becoming worse
+% 
+
+% if i turn off the accumarray and just output the indicies then:
+% - 1d as expected search algo outperfroms for all bins see ndhist_search_dev_no_accumarray_1d_bindep.png
+% - 2d is again very strange with a xover present ndhist_search_dev_no_accumarray_2d_bindep.png why is it doing
+%   this! 
+
+tic
+dimensions=2;
+num_counts=1e2;
+evaluations=1e2;
+bmax=nthroot(1e8,dimensions);
+num_bins_list=unique(round(logspace(round(log10(5)),round(log10(bmax)),evaluations)));
+order=randperm(numel(num_bins_list));
+num_bins_list=num_bins_list(order);
+time_search=num_bins_list*nan;
+time_histcn=num_bins_list*nan;
+sfigure(1)
+clf
+set(gcf,'color','w')
+for ii=1:numel(num_bins_list)
+bins=num_bins_list(ii);   
+data=normrnd(0,0.5,[num_counts,dimensions]);
+% make sure the upp and lower inf is inculded
+edges={[-inf,linspace(-1,1,bins+1),inf]'};
+edges=repmat(edges,[1,dimensions]);
+if dimensions==1
+    out_histcn=zeros(bins+2,1);
+else
+    out_histcn=zeros(repmat(bins+2,[1,dimensions]));
+end
+out_histcn_search=out_histcn;
+pause(0.1)
+tic
+out_histcn=histcn(data, edges{:});
+time_histcn(ii)=toc;
+edges={linspace(-1,1,bins+1)'};
+edges=repmat(edges,[1,dimensions]);
+pause(0.1)
+tic
+out_histcn_search=histcn_search(data, edges{:});
+time_search(ii)=toc;
+
+if ~isequal(size(out_histcn),size(out_histcn_search)) || ~isequal(out_histcn,out_histcn_search)
+    error('outputs not equal')
+end
+
+fprintf('bins %03.1e time inbuilt %05.2f ms, mine(sort) %05.2f ms, ratio %.2f \n',...
+    num_bins_list(ii),time_histcn(ii)*1e3,time_search(ii)*1e3,...
+    time_histcn(ii)/time_search(ii))
+
+sfigure(1);
+plot(num_bins_list,time_search,'xr')
+hold on
+plot(num_bins_list,time_histcn,'xb')
+hold off
+xlabel('bins to histogram (n)')
+ylabel('evaluation time (s)')
+legend('my search based histogram','histcn')
+title(sprintf('counts=$10^{%.1f}$',log10(num_counts)))
+set(gca,'XScale','log','YScale','log')
+%set(gca,'XScale','linear','YScale','linear')
+pause(1e-3)
+end
+
+%% code scrap for diagnosing xover
+bins=3e4;   
+num_counts=1;
+dimensions=2;
+data=normrnd(0,0.5,[num_counts,dimensions]);
+% make sure the upp and lower inf is inculded
+edges={[-inf,linspace(-1,1,bins+1),inf]'};
+edges=repmat(edges,[1,dimensions]);
+if dimensions==1
+    out_histcn=zeros(bins+2,1);
+else
+    out_histcn=zeros(repmat(bins+2,[1,dimensions]));
+end
+out_histcn_search=out_histcn;
+pause(0.1)
+%%
+tic
+out_histcn=histcn(data, edges{:});
+time_histcn(ii)=toc;
+edges={linspace(-1,1,bins+1)'};
+edges=repmat(edges,[1,dimensions]);
+pause(0.1)
+tic
+out_histcn_search=histcn_search(data, edges{:});
+time_search(ii)=toc;
+
+if ~isequal(size(out_histcn),size(out_histcn_search)) || ~isequal(out_histcn,out_histcn_search)
+    error('outputs not equal')
+end
+
 
 
 %%
@@ -295,9 +288,9 @@ end
 
 
 %%
-plot(bins_list,time_search)
+plot(num_counts_list,time_search)
 hold on
-plot(bins_list,time_histcn)
+plot(num_counts_list,time_histcn)
 hold off
 xlabel('counts to histogram (n)')
 ylabel('evaluation time (s)')
