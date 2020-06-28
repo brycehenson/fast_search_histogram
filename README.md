@@ -1,7 +1,9 @@
 # <img src="figs/logo.png" alt="diagram of the count search method" width="400"/> 
 **Bryce M. Henson**  
 Fast 1d histograming algorithms based on binary search.   
-**Status:** This Code **is ready for use in other projects**. Testing is implemented and passing.  
+**Status:** This Code **is ready for use in other projects**. Testing is implemented and passing.
+
+[![View fast_search_histogram on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/71526-fast_search_histogram)
 
 This project demonstrates superior speed to Matlab's inbuilt histcounts function and provides an adaptive function (hist_adaptive_method) that automatically picks the fastest method.
 
