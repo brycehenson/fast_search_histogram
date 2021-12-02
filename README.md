@@ -4,6 +4,7 @@ Fast 1d histograming algorithms based on binary search.
 **Status:** This Code **is ready for use in other projects**. Testing is implemented and passing.
 
 [![View fast_search_histogram on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/71526-fast_search_histogram)
+[![Build Status](https://img.shields.io/static/v1.svg?label=CSL&message=software%20against%20climate%20change&color=green?style=flat&logo=github)](https://img.shields.io/static/v1.svg?label=CSL&message=software%20against%20climate%20change&color=green?style=flat&logo=github)
 
 This project demonstrates superior speed to Matlab's inbuilt histcounts function and provides an adaptive function (hist_adaptive_method) that automatically picks the fastest method.
 
